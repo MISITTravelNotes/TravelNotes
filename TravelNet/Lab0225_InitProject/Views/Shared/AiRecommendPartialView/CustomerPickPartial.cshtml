@@ -1,0 +1,84 @@
+﻿@model Array
+@using Lab0225_InitProject.Models;
+
+<h1>這是客製化</h1>
+@foreach (var item in Model)
+{
+    if (item is List<UniqueCity>)
+    {
+        var cityLists = item as List<UniqueCity>;
+        @foreach (var cityList in cityLists)
+        {
+            <button type="button" class="btn btn-outline-primary city-btn">
+                @Html.DisplayFor(modelItem => cityList.city)
+            </button>
+        }
+    }
+}
+
+@* 問題載入太久需要一個機制解決*@
+
+
+<div id="card-container"></div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $(".city-btn").click(function () {
+            $(".city-btn").removeClass("active");
+            var cityString = $(this).text().trim();
+            toggleActiveClass($(this));
+            updateAjaxData(cityString);
+        });
+
+        function toggleActiveClass(element) {
+            if (!element.hasClass("active")) {
+                element.addClass("active");
+            }
+        }
+
+        function updateAjaxData(cityString) {
+            $.ajax({
+                url: "/AiRecommend/Itinerary",
+                method: "POST",
+                data: { city: cityString }
+            }).done(function (data) {
+                $.each(data, function (idx, elem) {
+                    //console.log(elem.scenicSpotName);
+                    //$('.item1').append(`<p>${elem.scenicSpotName}</p>`)
+                    $('#card-container').empty();
+                    var cardCounter = 0;
+                    var rowCounter = 0;
+                    $.each(data, function (idx, elem) {
+                        // 生成卡片
+                        var card = `
+                        <div class="card" style="width: 18rem;">
+                            <img src="${elem.pictureUrl1}" class="card-img-top" alt="">
+                            <div class="card-body">
+                                <h5 class="card-title">${elem.scenicSpotName}</h5>
+                                
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">景點/店家電話 : ${elem.phone}</li>
+                                <li class="list-group-item">地址: ${elem._Address}</li>
+                                    <li class="list-group-item">營業時間: ${elem.openTime}</li>
+                            </ul>
+                            <div class="card-body">
+                                <a>旅遊資訊 : ${elem.travelInfo}</a>
+                            </div>
+                            
+
+                        </div>`;
+                        // 將卡片加入容器中
+                        $('#card-container').append(card);
+
+                    });
+                })
+            });
+        }
+    });
+
+</script>
+
+
