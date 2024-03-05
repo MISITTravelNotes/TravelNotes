@@ -1,9 +1,10 @@
-﻿using Azure;
-using Lab0225_InitProject.Models;
+﻿using Lab0225_InitProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 using System.Collections;
-using System.Linq;
+
 
 namespace Lab0225_InitProject.Controllers
 {
@@ -40,12 +41,23 @@ namespace Lab0225_InitProject.Controllers
 
         public string MlHandel(string Interests1, string Interests2, string Interests3,string weather, string country)
         {
-            return $"OK-POST-V2-{1}-{Interests1}-{Interests2}-{Interests3}-{weather}-{country}";
+            var sampleData = new TravelModell.ModelInput()
+            {
+                Col0 = weather,
+                Col1 = Interests1,
+                Col2 = Interests2,
+                Col3 = Interests3,
+                Col4 = country,
+            };
+
+            //Load model and predict output
+            var result = TravelModell.Predict(sampleData);
+            var prediction = result.PredictedLabel;
+
+            
+
+            return $"OK-POST-V2-{1}-{Interests1}-{Interests2}-{Interests3}-{weather}-{country}-{prediction}";
         }
-
-
     }
-
-    
 }
 
